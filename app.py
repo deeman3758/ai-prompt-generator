@@ -115,4 +115,4 @@ if st.session_state.prompt_history:
 
 # Footer
 st.markdown("---")
-st.markdown("☕️ Enjoying this tool? [Buy Me a Coffee](https://www.buymeacoffee.com/yourusername)
+st.markdown("☕️ Enjoying this tool? [Buy Me a Coffee](https://www.buymeacoffee.com/yourusername) ❤️")
