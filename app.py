@@ -86,5 +86,8 @@ st.markdown("Generate ultra-creative AI prompts using hidden and powerful keywor
 video_mode = st.checkbox("🎥 Enable Video-Style Prompt")
 
 if st.button("🎨 Generate Prompt"):
-    prompt = generate_prompt(include_video=video_mode)
-    st.text_area("Your Generated Prompt:", prompt, height=150)
+    generated_prompt = generate_prompt(include_video=video_mode)
+    user_prompt = st.text_area("📝 Customize Your Prompt Below:", generated_prompt, height=200)
+    st.markdown("### ✅ Final Prompt:")
+    st.code(user_prompt, language='markdown')
+    st.download_button("📥 Download Prompt as Text", user_prompt, file_name="ai_prompt.txt")
