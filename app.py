@@ -30,7 +30,9 @@ data_keywords = [
 magic_keywords = [
     "ArtStation HQ render", "Volumetric lighting, cinematic shadows, global illumination",
     "Color-graded by Roger Deakins", "Captured for Getty Images editorial use",
-    "Hyperreal sketchbook study by Da Vinci, graphite on vellum"
+    "Hyperreal sketchbook study by Da Vinci, graphite on vellum",
+    "Goddess emerging from misty temple", "Silhouetted warrior on glowing mountaintop",
+    "Majestic red dress flowing in garden of roses", "Mystical glowing cave with bioluminescent plants"
 ]
 
 video_keywords = [
@@ -45,6 +47,17 @@ people_keywords = [
     "Teen boy with futuristic fashion walking through neon-lit alley",
     "Elegant woman with flowing dress under moonlight",
     "Confident man in business suit, urban background"
+]
+
+pose_keywords = [
+    "standing still with intense gaze", "mid-step walking motion",
+    "arms crossed confidently", "hands behind back in relaxed posture",
+    "reaching out toward the viewer", "dancing with movement in dress",
+    "kneeling by a pond", "sitting on stone ledge"
+]
+
+species_keywords = [
+    "elf", "mermaid", "cyborg", "vampire", "centaur", "dragonborn", "fairy", "demon", "alien", "android"
 ]
 
 bonus_templates = [
@@ -65,7 +78,7 @@ bonus_options = {
     "design_house": ["Pentagram", "Sagmeister & Walsh", "IDEO"]
 }
 
-def generate_prompt(style="Random", include_video=False, gender=None, age=None, body_type=None, setting=None, mood=None, camera_angle=None, clothing=None):
+def generate_prompt(style="Random", include_video=False, gender=None, age=None, body_type=None, setting=None, mood=None, camera_angle=None, clothing=None, pose=None, species=None, add_negative=False):
     if style == "Realism":
         section = realism_keywords
     elif style == "Photorealism":
@@ -90,12 +103,14 @@ def generate_prompt(style="Random", include_video=False, gender=None, age=None, 
     main_keyword = random.choice(section)
 
     character_description = ""
-    if gender or age or body_type or setting or mood or camera_angle or clothing:
+    if gender or age or body_type or setting or mood or camera_angle or clothing or pose or species:
         character_description = "Character: "
         if age:
             character_description += f"{age} year old "
         if gender:
             character_description += f"{gender} "
+        if species:
+            character_description += f"{species}, "
         if body_type:
             character_description += f"with a {body_type} body type, "
         if clothing:
@@ -105,7 +120,9 @@ def generate_prompt(style="Random", include_video=False, gender=None, age=None, 
         if mood:
             character_description += f"capturing a {mood} mood, "
         if camera_angle:
-            character_description += f"shot from a {camera_angle} angle"
+            character_description += f"shot from a {camera_angle} angle, "
+        if pose:
+            character_description += f"posed {pose}"
 
     template = random.choice(bonus_templates)
     filled_template = template.format(
@@ -120,7 +137,12 @@ def generate_prompt(style="Random", include_video=False, gender=None, age=None, 
         design_house=random.choice(bonus_options["design_house"])
     )
 
-    return f"{character_description.strip()}, {main_keyword}, {filled_template}"
+    full_prompt = f"{character_description.strip()}, {main_keyword}, {filled_template}"
+
+    if add_negative:
+        full_prompt += "\n\nNegative Prompt: blurry, low-res, bad anatomy, extra limbs, deformed, watermark, text, cropped, grainy"
+
+    return full_prompt
 
 # Streamlit App Interface
 st.title("AI Art Prompt Generator")
@@ -131,14 +153,17 @@ style = st.selectbox("🎨 Choose a style or category:", [
 ])
 
 video_mode = st.checkbox("🎥 Enable Video-Style Prompt")
+negative_toggle = st.checkbox("🚫 Add Default Negative Prompt")
 
 gender = st.selectbox("🚻 Gender (optional):", ["", "man", "woman", "nonbinary"])
 age = st.selectbox("📅 Age (optional):", ["", "child", "teen", "20s", "30s", "40s", "50s", "senior"])
-body_type = st.selectbox("🏋️ Body Type (optional):", ["", "slim", "athletic", "curvy", "plus-size", "muscular"])
-setting = st.selectbox("🌍 Scene/Setting (optional):", ["", "urban", "nature", "futuristic", "vintage", "studio", "candlelit room"])
-mood = st.selectbox("🎭 Mood (optional):", ["", "happy", "sad", "mysterious", "epic", "romantic", "melancholy"])
+body_type = st.selectbox("🏋️ Body Type (optional):", ["", "slim", "athletic", "curvy", "plus-size", "muscular", "petite", "voluptuous", "toned", "modelesque"])
+setting = st.selectbox("🌍 Scene/Setting (optional):", ["", "urban", "nature", "futuristic", "vintage", "studio", "candlelit room", "fantasy forest", "temple ruins", "cherry blossom grove"])
+mood = st.selectbox("🎭 Mood (optional):", ["", "happy", "sad", "mysterious", "epic", "romantic", "melancholy", "elegant", "dreamy"])
 camera_angle = st.selectbox("🎥 Camera Angle (optional):", ["", "close-up", "wide shot", "overhead", "low angle", "first-person"])
-clothing = st.selectbox("👗 Clothing/Fashion (optional):", ["", "casual streetwear", "formal suit", "evening gown", "cyberpunk gear", "athletic wear"])
+clothing = st.selectbox("👗 Clothing/Fashion (optional):", ["", "casual streetwear", "formal suit", "evening gown", "cyberpunk gear", "athletic wear", "bikini", "lace dress", "warrior costume", "transparent silk robe"])
+pose = st.selectbox("🧍 Pose (optional):", ["", *pose_keywords])
+species = st.selectbox("🧬 Fantasy Species (optional):", ["", *species_keywords])
 
 if st.button("🎨 Generate Prompt"):
     generated_prompt = generate_prompt(
@@ -150,7 +175,10 @@ if st.button("🎨 Generate Prompt"):
         setting=setting,
         mood=mood,
         camera_angle=camera_angle,
-        clothing=clothing
+        clothing=clothing,
+        pose=pose,
+        species=species,
+        add_negative=negative_toggle
     )
     st.session_state.prompt_history.insert(0, generated_prompt.strip(', '))
     user_prompt = st.text_area("📝 Customize Your Prompt Below:", generated_prompt.strip(', '), height=200)
