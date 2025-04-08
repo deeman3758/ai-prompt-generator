@@ -60,6 +60,10 @@ species_keywords = [
     "elf", "mermaid", "cyborg", "vampire", "centaur", "dragonborn", "fairy", "demon", "alien", "android"
 ]
 
+camera_angle_keywords = [
+    "overhead drone shot", "low angle shot", "high angle close-up", "POV handheld", "macro extreme close-up", "360-degree panoramic"
+]
+
 bonus_templates = [
     "Shot from {camera} with {lens}, ISO {iso}, aperture {aperture}, using {film}",
     "Captured using {camera_technique} and {format_technique}",
@@ -77,7 +81,6 @@ bonus_options = {
     "year": ["1997", "1984", "2001"],
     "purpose": ["news coverage", "surveillance", "art documentary"],
     "design_house": ["Pentagram", "Sagmeister & Walsh", "IDEO"],
-
     "camera_technique": [
         "ARRI Alexa 65, IMAX 70mm", "Hasselblad X2D 100C", "Leica M11, f/1.4 aperture",
         "Fujifilm GFX 100S, medium format", "Canon EOS R5, 8K raw", "DNG format, Phase One capture"
@@ -157,47 +160,57 @@ def generate_prompt(style="Random", include_video=False, gender=None, age=None, 
             character_description += f"posed {pose}"
 
     template = random.choice(bonus_templates)
-    filled_template = template.format(
-        camera=random.choice(bonus_options["camera"]),
-        lens=random.choice(bonus_options["lens"]),
-        iso=random.choice(bonus_options["iso"]),
-        aperture=random.choice(bonus_options["aperture"]),
-        film=random.choice(bonus_options["film"]),
-        place=random.choice(bonus_options["place"]),
-        year=random.choice(bonus_options["year"]),
-        purpose=random.choice(bonus_options["purpose"]),
-        design_house=random.choice(bonus_options["design_house"])
-    )
+    try:
+        filled_template = template.format(
+            camera=random.choice(bonus_options["camera"]),
+            lens=random.choice(bonus_options["lens"]),
+            iso=random.choice(bonus_options["iso"]),
+            aperture=random.choice(bonus_options["aperture"]),
+            film=random.choice(bonus_options["film"]),
+            place=random.choice(bonus_options["place"]),
+            year=random.choice(bonus_options["year"]),
+            purpose=random.choice(bonus_options["purpose"]),
+            design_house=random.choice(bonus_options["design_house"]),
+            camera_technique=random.choice(bonus_options["camera_technique"]),
+            format_technique=random.choice(bonus_options["format_technique"]),
+            lighting_style=random.choice(bonus_options["lighting_style"]),
+            render_style=random.choice(bonus_options["render_style"]),
+            composition=random.choice(bonus_options["composition"]),
+            aesthetic_style=random.choice(bonus_options["aesthetic_style"]),
+            technical_enhancement=random.choice(bonus_options["technical_enhancement"])
+        )
+    except KeyError as e:
+        filled_template = f"[Missing template key: {str(e)}]"
 
-    full_prompt = f"{character_description.strip()}, {main_keyword}, {filled_template}"
+    full_prompt = f"{character_description.strip(', ')}, {main_keyword}, {filled_template}"
 
     if add_negative:
         full_prompt += "\n\nNegative Prompt: blurry, low-res, bad anatomy, extra limbs, deformed, watermark, text, cropped, grainy"
 
-    return full_prompt
+    return full_prompt.strip(', ')
 
 # Streamlit App Interface
-st.title("AI Art Prompt Generator")
-st.markdown("Generate ultra-creative AI prompts using hidden and powerful keywords. Turn your ideas into images with rich detail and cinematic flair.☕️ Want to support this project? [Buy Me a Coffee](https://www.buymeacoffee.com/yourusername) 💖")
+st.title("AI Art Prompt Generator 🎨")
+st.markdown("Generate next-level creative prompts using hidden, powerful keywords. Perfect for AI image & video generation.")
 
-style = st.selectbox("🎨 Choose a style or category:", [
+style = st.selectbox("🎯 Choose prompt style:", [
     "Random", "Realism", "Photorealism", "Artistic", "Data/Archive", "Magic/Lighting", "People/Character"
 ])
 
-video_mode = st.checkbox("🎥 Enable Video-Style Prompt")
+video_mode = st.checkbox("📹 Enable Video-Style Prompt")
 negative_toggle = st.checkbox("🚫 Add Default Negative Prompt")
 
-gender = st.selectbox("🚻 Gender (optional):", ["", "man", "woman", "nonbinary"])
-age = st.selectbox("📅 Age (optional):", ["", "child", "teen", "20s", "30s", "40s", "50s", "senior"])
-body_type = st.selectbox("🏋️ Body Type (optional):", ["", "slim", "athletic", "curvy", "plus-size", "muscular", "petite", "voluptuous", "toned", "modelesque"])
-setting = st.selectbox("🌍 Scene/Setting (optional):", ["", "urban", "nature", "futuristic", "vintage", "studio", "candlelit room", "fantasy forest", "temple ruins", "cherry blossom grove"])
-mood = st.selectbox("🎭 Mood (optional):", ["", "happy", "sad", "mysterious", "epic", "romantic", "melancholy", "elegant", "dreamy"])
-camera_angle = st.selectbox("🎥 Camera Angle (optional):", ["", "close-up", "wide shot", "overhead", "low angle", "first-person"])
-clothing = st.selectbox("👗 Clothing/Fashion (optional):", ["", "casual streetwear", "formal suit", "evening gown", "cyberpunk gear", "athletic wear", "bikini", "lace dress", "warrior costume", "transparent silk robe"])
-pose = st.selectbox("🧍 Pose (optional):", ["", *pose_keywords])
-species = st.selectbox("🧬 Fantasy Species (optional):", ["", *species_keywords])
+gender = st.selectbox("🚻 Gender:", ["", "man", "woman", "nonbinary"])
+age = st.selectbox("📅 Age:", ["", "child", "teen", "20s", "30s", "40s", "50s", "senior"])
+body_type = st.selectbox("🏋️ Body Type:", ["", "slim", "athletic", "curvy", "plus-size", "muscular", "petite", "voluptuous", "toned", "modelesque"])
+setting = st.selectbox("🌍 Scene/Setting:", ["", "urban", "nature", "futuristic", "vintage", "studio", "temple ruins", "cherry blossom grove"])
+mood = st.selectbox("🎭 Mood:", ["", "happy", "sad", "mysterious", "epic", "romantic", "melancholy", "elegant", "dreamy"])
+camera_angle = st.selectbox("🎥 Camera Angle:", ["", *camera_angle_keywords])
+clothing = st.selectbox("👗 Clothing:", ["", "casual", "formal", "evening gown", "cyberpunk gear", "athletic wear", "lace dress", "bikini", "warrior costume"])
+pose = st.selectbox("🧍 Pose:", ["", *pose_keywords])
+species = st.selectbox("🧬 Fantasy Species:", ["", *species_keywords])
 
-if st.button("🎨 Generate Prompt"):
+if st.button("✨ Generate Prompt"):
     generated_prompt = generate_prompt(
         style=style,
         include_video=video_mode,
@@ -212,21 +225,13 @@ if st.button("🎨 Generate Prompt"):
         species=species,
         add_negative=negative_toggle
     )
-    st.session_state.prompt_history.insert(0, generated_prompt.strip(', '))
-    user_prompt = st.text_area("📝 Customize Your Prompt Below:", generated_prompt.strip(', '), height=200)
-    st.markdown("### ✅ Final Prompt:")
-    st.code(user_prompt, language='markdown')
-    st.download_button("📥 Download Prompt as Text", user_prompt, file_name="ai_prompt.txt")
+    st.session_state.prompt_history.insert(0, generated_prompt)
+    st.markdown("### 🎬 Your Generated Prompt")
+    st.code(generated_prompt, language='markdown')
 
-    st.info("📋 To copy your prompt, highlight the text above and press Ctrl+C (or tap-and-hold on mobile).")
+    st.download_button("📥 Download Prompt", generated_prompt, file_name="ai_prompt.txt")
 
-    if st.session_state.prompt_history:
-        st.markdown("### 🕓 Prompt History")
-        for i, past_prompt in enumerate(st.session_state.prompt_history[:10], 1):
-            st.markdown(f"**{i}.** {past_prompt}")
-
-# Tip jar footer
+# Footer
 st.markdown("---")
-st.markdown("☕️ If this tool helped you, consider supporting it:")
-st.markdown("[Buy Me a Coffee](https://www.buymeacoffee.com/yourusername) 💖")
+st.markdown("☕️ Like this tool? [Buy Me a Coffee](https://www.buymeacoffee.com/yourusername) ❤️")
 
