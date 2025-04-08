@@ -1,6 +1,5 @@
 import random
 import streamlit as st
-import pyperclip
 
 # Initialize session state for prompt history
 if "prompt_history" not in st.session_state:
@@ -159,12 +158,7 @@ if st.button("🎨 Generate Prompt"):
     st.code(user_prompt, language='markdown')
     st.download_button("📥 Download Prompt as Text", user_prompt, file_name="ai_prompt.txt")
 
-    if st.button("📋 Copy Prompt to Clipboard"):
-        try:
-            pyperclip.copy(user_prompt)
-            st.success("Prompt copied to clipboard!")
-        except Exception as e:
-            st.warning("Could not copy to clipboard in this environment.")
+    st.info("📋 To copy your prompt, highlight the text above and press Ctrl+C (or tap-and-hold on mobile).")
 
     if st.session_state.prompt_history:
         st.markdown("### 🕓 Prompt History")
