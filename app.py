@@ -1,5 +1,10 @@
 import random
 import streamlit as st
+import pyperclip
+
+# Initialize session state for prompt history
+if "prompt_history" not in st.session_state:
+    st.session_state.prompt_history = []
 
 # Define categorized prompt components
 realism_keywords = [
@@ -35,6 +40,14 @@ video_keywords = [
     "Opening sequence of a sci-fi short film"
 ]
 
+people_keywords = [
+    "Portrait of a beautiful woman in her 20s, soft lighting",
+    "Old man with wise eyes, sitting in a dusty library",
+    "Teen boy with futuristic fashion walking through neon-lit alley",
+    "Elegant woman with flowing dress under moonlight",
+    "Confident man in business suit, urban background"
+]
+
 bonus_templates = [
     "Shot from {camera} with {lens}, ISO {iso}, aperture {aperture}, using {film}",
     "Archived footage from {place}, {year}, used for {purpose}",
@@ -53,18 +66,49 @@ bonus_options = {
     "design_house": ["Pentagram", "Sagmeister & Walsh", "IDEO"]
 }
 
-def generate_prompt(include_video=False):
-    section = random.choice([
-        realism_keywords, photorealism_keywords, artistic_keywords,
-        data_keywords, magic_keywords
-    ])
+def generate_prompt(style="Random", include_video=False, gender=None, age=None, body_type=None, setting=None, mood=None, camera_angle=None, clothing=None):
+    if style == "Realism":
+        section = realism_keywords
+    elif style == "Photorealism":
+        section = photorealism_keywords
+    elif style == "Artistic":
+        section = artistic_keywords
+    elif style == "Data/Archive":
+        section = data_keywords
+    elif style == "Magic/Lighting":
+        section = magic_keywords
+    elif style == "People/Character":
+        section = people_keywords
+    else:
+        section = random.choice([
+            realism_keywords, photorealism_keywords, artistic_keywords,
+            data_keywords, magic_keywords, people_keywords
+        ])
 
     if include_video:
         section += video_keywords
 
     main_keyword = random.choice(section)
-    template = random.choice(bonus_templates)
 
+    character_description = ""
+    if gender or age or body_type or setting or mood or camera_angle or clothing:
+        character_description = "Character: "
+        if age:
+            character_description += f"{age} year old "
+        if gender:
+            character_description += f"{gender} "
+        if body_type:
+            character_description += f"with a {body_type} body type, "
+        if clothing:
+            character_description += f"wearing {clothing}, "
+        if setting:
+            character_description += f"in a {setting} setting, "
+        if mood:
+            character_description += f"capturing a {mood} mood, "
+        if camera_angle:
+            character_description += f"shot from a {camera_angle} angle"
+
+    template = random.choice(bonus_templates)
     filled_template = template.format(
         camera=random.choice(bonus_options["camera"]),
         lens=random.choice(bonus_options["lens"]),
@@ -77,17 +121,57 @@ def generate_prompt(include_video=False):
         design_house=random.choice(bonus_options["design_house"])
     )
 
-    return f"{main_keyword}, {filled_template}"
+    return f"{character_description.strip()}, {main_keyword}, {filled_template}"
 
 # Streamlit App Interface
 st.title("AI Art Prompt Generator")
 st.markdown("Generate ultra-creative AI prompts using hidden and powerful keywords. Choose to generate prompts for still images or video scenes.")
 
+style = st.selectbox("🎨 Choose a style or category:", [
+    "Random", "Realism", "Photorealism", "Artistic", "Data/Archive", "Magic/Lighting", "People/Character"
+])
+
 video_mode = st.checkbox("🎥 Enable Video-Style Prompt")
 
+gender = st.selectbox("🚻 Gender (optional):", ["", "man", "woman", "nonbinary"])
+age = st.selectbox("📅 Age (optional):", ["", "child", "teen", "20s", "30s", "40s", "50s", "senior"])
+body_type = st.selectbox("🏋️ Body Type (optional):", ["", "slim", "athletic", "curvy", "plus-size", "muscular"])
+setting = st.selectbox("🌍 Scene/Setting (optional):", ["", "urban", "nature", "futuristic", "vintage", "studio", "candlelit room"])
+mood = st.selectbox("🎭 Mood (optional):", ["", "happy", "sad", "mysterious", "epic", "romantic", "melancholy"])
+camera_angle = st.selectbox("🎥 Camera Angle (optional):", ["", "close-up", "wide shot", "overhead", "low angle", "first-person"])
+clothing = st.selectbox("👗 Clothing/Fashion (optional):", ["", "casual streetwear", "formal suit", "evening gown", "cyberpunk gear", "athletic wear"])
+
 if st.button("🎨 Generate Prompt"):
-    generated_prompt = generate_prompt(include_video=video_mode)
-    user_prompt = st.text_area("📝 Customize Your Prompt Below:", generated_prompt, height=200)
+    generated_prompt = generate_prompt(
+        style=style,
+        include_video=video_mode,
+        gender=gender,
+        age=age,
+        body_type=body_type,
+        setting=setting,
+        mood=mood,
+        camera_angle=camera_angle,
+        clothing=clothing
+    )
+    st.session_state.prompt_history.insert(0, generated_prompt.strip(', '))
+    user_prompt = st.text_area("📝 Customize Your Prompt Below:", generated_prompt.strip(', '), height=200)
     st.markdown("### ✅ Final Prompt:")
     st.code(user_prompt, language='markdown')
     st.download_button("📥 Download Prompt as Text", user_prompt, file_name="ai_prompt.txt")
+
+    if st.button("📋 Copy Prompt to Clipboard"):
+        try:
+            pyperclip.copy(user_prompt)
+            st.success("Prompt copied to clipboard!")
+        except Exception as e:
+            st.warning("Could not copy to clipboard in this environment.")
+
+    if st.session_state.prompt_history:
+        st.markdown("### 🕓 Prompt History")
+        for i, past_prompt in enumerate(st.session_state.prompt_history[:10], 1):
+            st.markdown(f"**{i}.** {past_prompt}")
+
+# Tip jar footer
+st.markdown("---")
+st.markdown("☕️ If this tool helped you, consider supporting it:")
+st.markdown("[Buy Me a Coffee](https://www.buymeacoffee.com/yourusername) 💖")
