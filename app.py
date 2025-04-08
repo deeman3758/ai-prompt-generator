@@ -62,8 +62,9 @@ species_keywords = [
 
 bonus_templates = [
     "Shot from {camera} with {lens}, ISO {iso}, aperture {aperture}, using {film}",
-    "Archived footage from {place}, {year}, used for {purpose}",
-    "Design layout inspired by {design_house}"
+    "Captured using {camera_technique} and {format_technique}",
+    "Lighting: {lighting_style}, Style: {render_style}",
+    "Framing: {composition}, Aesthetic: {aesthetic_style}, Technical: {technical_enhancement}"
 ]
 
 bonus_options = {
@@ -75,7 +76,38 @@ bonus_options = {
     "place": ["Tokyo", "New York", "Paris"],
     "year": ["1997", "1984", "2001"],
     "purpose": ["news coverage", "surveillance", "art documentary"],
-    "design_house": ["Pentagram", "Sagmeister & Walsh", "IDEO"]
+    "design_house": ["Pentagram", "Sagmeister & Walsh", "IDEO"],
+
+    "camera_technique": [
+        "ARRI Alexa 65, IMAX 70mm", "Hasselblad X2D 100C", "Leica M11, f/1.4 aperture",
+        "Fujifilm GFX 100S, medium format", "Canon EOS R5, 8K raw", "DNG format, Phase One capture"
+    ],
+    "format_technique": [
+        "RAW unedited, straight from camera", "photojournalism, Magnum photographer",
+        "fashion editorial, Vogue magazine", "award-winning photography, Sony World Photography"
+    ],
+    "lighting_style": [
+        "volumetric lighting, global illumination", "golden hour, natural diffusion",
+        "studio lighting setup, Profoto D2", "low-key dramatic lighting, rembrandt triangle",
+        "subsurface scattering, physical material rendering"
+    ],
+    "render_style": [
+        "octane render, Arnold shader", "8K resolution, megascans",
+        "hyperrealistic detail, cinema4d", "zero film grain, perfect exposure"
+    ],
+    "composition": [
+        "100mm macro lens, 1:1 magnification", "anamorphic lens, 2.39:1 aspect ratio",
+        "tilt-shift effect, selective focus", "ultra-wide angle, 14mm lens",
+        "medium format composition, rule of thirds"
+    ],
+    "aesthetic_style": [
+        "conceptual photography, fine art", "archival print quality, museum grade"
+    ],
+    "technical_enhancement": [
+        "focus stacked, 32-bit HDR", "ray-traced reflections, path tracing",
+        "photogrammetry-based, accurate surface displacement",
+        "zero chromatic aberration, optical perfection", "color calibrated, DCI-P3 color space"
+    ]
 }
 
 def generate_prompt(style="Random", include_video=False, gender=None, age=None, body_type=None, setting=None, mood=None, camera_angle=None, clothing=None, pose=None, species=None, add_negative=False):
@@ -146,7 +178,7 @@ def generate_prompt(style="Random", include_video=False, gender=None, age=None, 
 
 # Streamlit App Interface
 st.title("AI Art Prompt Generator")
-st.markdown("Generate ultra-creative AI prompts using hidden and powerful keywords. Choose to generate prompts for still images or video scenes.")
+st.markdown("Generate ultra-creative AI prompts using hidden and powerful keywords. Turn your ideas into images with rich detail and cinematic flair.☕️ Want to support this project? [Buy Me a Coffee](https://www.buymeacoffee.com/yourusername) 💖")
 
 style = st.selectbox("🎨 Choose a style or category:", [
     "Random", "Realism", "Photorealism", "Artistic", "Data/Archive", "Magic/Lighting", "People/Character"
@@ -197,3 +229,4 @@ if st.button("🎨 Generate Prompt"):
 st.markdown("---")
 st.markdown("☕️ If this tool helped you, consider supporting it:")
 st.markdown("[Buy Me a Coffee](https://www.buymeacoffee.com/yourusername) 💖")
+
