@@ -123,9 +123,8 @@ if st.button("✨ Generate Prompt"):
     if power_parts:
         base_prompt += ", " + ", ".join(power_parts)
     if negative_prompt_toggle:
-        base_prompt += "
+       base_prompt += "\n\nNegative Prompt: blurry, low-res, bad anatomy, deformed, extra limbs, watermark, cropped, noisy, text"
 
-Negative Prompt: blurry, low-res, bad anatomy, deformed, extra limbs, watermark, cropped, noisy, text"
 
     st.session_state.prompt_history.insert(0, base_prompt.strip())
     st.markdown("### ✅ Your Final Prompt")
