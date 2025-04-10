@@ -35,6 +35,9 @@ camera_angle_keywords = [
 ]
 
 # App UI
+
+# Power Prompt Mode toggle
+power_mode = st.checkbox("⚡ Power Prompt Mode (show advanced options)")
 if st.button("🔀 Randomize All Fields"):
     import random
     gender = random.choice(["man", "woman", "nonbinary"])
@@ -73,8 +76,24 @@ upscale_addition = upscale_categories[upscale_choice]
 subject_input = st.text_input("🖼 Describe your subject:", "A beautiful futuristic warrior")
 style_input = st.text_input("🎨 Style keywords (optional):", "shot on Canon EOS R5, volumetric lighting")
 
-# Generate prompt
+# Power Prompt Fields
+if power_mode:
+    negative_prompt_toggle = st.checkbox("🚫 Add Negative Prompt (Power Mode)")
+    lighting = st.selectbox("💡 Lighting Style:", ["", "golden hour", "neon glow", "rim lighting", "chiaroscuro", "studio softbox"])
+    render_engine = st.selectbox("🧪 Render Engine:", ["", "Octane", "Unreal Engine 5", "Redshift", "Cinema4D"])
+    composition = st.selectbox("🎞️ Composition Style:", ["", "rule of thirds", "Dutch angle", "top-down view", "over-the-shoulder"])
+    aesthetic = st.selectbox("🖼️ Aesthetic Style:", ["", "fashion editorial", "photojournalism", "fine art museum grade", "surrealist"])
+    tech = st.selectbox("⚙️ Technical Enhancements:", ["", "32-bit HDR", "ray tracing", "zero chromatic aberration", "DCI-P3 color calibration"])
+else:
+    negative_prompt_toggle = False
+    lighting = render_engine = composition = aesthetic = tech = ""
 if st.button("✨ Generate Prompt"):
+    power_parts = []
+    if lighting: power_parts.append(f"lit with {lighting}")
+    if render_engine: power_parts.append(f"rendered in {render_engine}")
+    if composition: power_parts.append(f"composition: {composition}")
+    if aesthetic: power_parts.append(aesthetic)
+    if tech: power_parts.append(tech)
     prompt_parts = []
 
     if age:
@@ -101,6 +120,12 @@ if st.button("✨ Generate Prompt"):
 
     if upscale_addition:
         base_prompt += ", " + upscale_addition
+    if power_parts:
+        base_prompt += ", " + ", ".join(power_parts)
+    if negative_prompt_toggle:
+        base_prompt += "
+
+Negative Prompt: blurry, low-res, bad anatomy, deformed, extra limbs, watermark, cropped, noisy, text"
 
     st.session_state.prompt_history.insert(0, base_prompt.strip())
     st.markdown("### ✅ Your Final Prompt")
